@@ -8,7 +8,7 @@ import type {
   TeamScope,
 } from "./types";
 
-const BASE_URL = "http://localhost:8000";
+const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 
 async function get<T>(path: string, params: Record<string, string | number | boolean | null | undefined> = {}): Promise<T> {
   const url = new URL(BASE_URL + path);

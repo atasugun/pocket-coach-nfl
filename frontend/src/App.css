@@ -12,8 +12,9 @@
   align-items: center;
   gap: 20px;
   padding: 12px 22px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
+  background: var(--header-bg);
+  color: #fff;
+  border-bottom: 4px solid #d50a0a;
   box-shadow: var(--shadow);
 }
 
@@ -25,14 +26,34 @@
 }
 
 .app-header__mark {
-  font-size: 20px;
+  color: #fff;
+  flex: none;
+  overflow: visible;
 }
 
 .app-header__name {
-  font-family: "Big Shoulders Display", sans-serif;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--display);
   font-weight: 800;
-  font-size: 19px;
-  letter-spacing: 0.01em;
+  font-size: 23px;
+  line-height: 0.95;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transform: skewX(-8deg);
+}
+
+.app-header__name b {
+  color: var(--gold);
+}
+
+.app-header__name small {
+  font-family: "Fira Sans", sans-serif;
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--header-text);
+  margin-top: 3px;
 }
 
 .app-nav {
@@ -43,21 +64,23 @@
 
 .app-nav a {
   text-decoration: none;
-  color: var(--text-dim);
-  font-size: 13.5px;
-  font-weight: 600;
-  padding: 8px 14px;
-  border-radius: 8px;
+  color: var(--header-text);
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-bottom: 3px solid transparent;
 }
 
 .app-nav a:hover {
-  background: var(--surface-2);
-  color: var(--text);
+  color: #fff;
 }
 
 .app-nav a.active {
-  background: var(--accent-soft);
-  color: var(--accent);
+  color: #fff;
+  border-bottom-color: var(--gold);
 }
 
 .app-main {

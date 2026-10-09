@@ -15,14 +15,28 @@
   font-size: 9.5px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--text-faint);
+  color: var(--header-text);
+}
+
+.team-selector__pick {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.team-selector__logo {
+  background: #fff;
+  border-radius: 50%;
+  padding: 2px;
+  object-fit: contain;
+  flex: none;
 }
 
 .team-selector__field select {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
+  background: var(--header-2);
+  border: 1px solid var(--header-border);
   border-radius: 7px;
-  color: var(--text);
+  color: #fff;
   font-family: "IBM Plex Mono", monospace;
   font-weight: 600;
   font-size: 13px;
@@ -35,9 +49,11 @@
 }
 
 .team-selector__vs {
-  font-family: "Big Shoulders Display", sans-serif;
-  font-size: 13px;
-  color: var(--text-faint);
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--gold);
   padding-top: 12px;
 }
 
@@ -45,8 +61,8 @@
   display: flex;
   gap: 2px;
   margin-left: 6px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
+  background: var(--header-2);
+  border: 1px solid var(--header-border);
   border-radius: 8px;
   padding: 2px;
 }
@@ -54,7 +70,7 @@
 .team-selector__mode button {
   border: none;
   background: transparent;
-  color: var(--text-dim);
+  color: var(--header-text);
   font-size: 12.5px;
   font-weight: 600;
   padding: 6px 12px;
@@ -63,8 +79,8 @@
 }
 
 .team-selector__mode button.active {
-  background: var(--surface);
-  color: var(--text);
+  background: #fff;
+  color: #013369;
   box-shadow: var(--shadow);
 }
 

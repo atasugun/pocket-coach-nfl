@@ -19,28 +19,34 @@ export default function TeamSelector({ scope, onChange }: Props) {
     <div className="team-selector">
       <div className="team-selector__field">
         <label htmlFor="myTeam">My team</label>
-        <select id="myTeam" value={scope.myTeam ?? ""} onChange={(e) => onChange({ myTeam: e.target.value || null })}>
-          <option value="">Select…</option>
-          {teams.map((t) => (
-            <option key={t} value={t}>
-              {t}
-            </option>
-          ))}
-        </select>
+        <div className="team-selector__pick">
+          {scope.myTeam && <img className="team-selector__logo" src={`/logos/${scope.myTeam}.png`} alt="" width={26} height={26} />}
+          <select id="myTeam" value={scope.myTeam ?? ""} onChange={(e) => onChange({ myTeam: e.target.value || null })}>
+            <option value="">Select…</option>
+            {teams.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <span className="team-selector__vs">vs</span>
 
       <div className="team-selector__field">
         <label htmlFor="opponent">Opponent</label>
-        <select id="opponent" value={scope.opponent ?? ""} onChange={(e) => onChange({ opponent: e.target.value || null })}>
-          <option value="">Select…</option>
-          {teams.map((t) => (
-            <option key={t} value={t}>
-              {t}
-            </option>
-          ))}
-        </select>
+        <div className="team-selector__pick">
+          {scope.opponent && <img className="team-selector__logo" src={`/logos/${scope.opponent}.png`} alt="" width={26} height={26} />}
+          <select id="opponent" value={scope.opponent ?? ""} onChange={(e) => onChange({ opponent: e.target.value || null })}>
+            <option value="">Select…</option>
+            {teams.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div className="team-selector__mode" role="tablist" aria-label="Perspective">

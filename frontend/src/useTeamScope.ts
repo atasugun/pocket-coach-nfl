@@ -8,8 +8,8 @@ export function useTeamScope(): [TeamScope, (next: Partial<TeamScope>) => void] 
   const [params, setParams] = useSearchParams();
 
   const scope: TeamScope = {
-    myTeam: params.get("myTeam"),
-    opponent: params.get("opponent"),
+    myTeam: params.has("myTeam") ? params.get("myTeam") || null : "PHI",
+    opponent: params.has("opponent") ? params.get("opponent") || null : "JAX",
     mode: (params.get("mode") as Mode) || "self",
   };
 

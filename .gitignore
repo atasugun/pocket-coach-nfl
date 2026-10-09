@@ -20,3 +20,6 @@ nfl-big-data-bowl-regional-event-data-main.zip
 
 # OS
 .DS_Store
+
+# Local env overrides
+frontend/.env*.local
