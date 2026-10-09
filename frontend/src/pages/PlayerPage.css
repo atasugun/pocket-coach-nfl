@@ -1,0 +1,117 @@
+.player-page__state {
+  padding: 60px 0;
+  text-align: center;
+  color: var(--text-faint);
+}
+
+.player-page h1 {
+  font-size: 24px;
+  margin-bottom: 18px;
+}
+
+.player-page__pos {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 13px;
+  color: var(--text-faint);
+  font-weight: 500;
+}
+
+.player-page__metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.player-page__metric {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 14px 16px;
+}
+
+.player-page__metric-name {
+  font-size: 11.5px;
+  color: var(--text-faint);
+  margin-bottom: 6px;
+}
+
+.player-page__metric-value {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.player-page__metric-n {
+  font-size: 11px;
+  color: var(--text-faint);
+  margin-top: 4px;
+}
+
+.player-page__cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.player-page__panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 16px 18px;
+}
+
+.player-page__panel h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+
+.player-page__none {
+  color: var(--text-faint);
+  font-size: 13px;
+}
+
+.player-page__flag-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+  color: var(--text);
+  font-size: 12.5px;
+}
+
+.player-page__flag-row:last-child {
+  border-bottom: none;
+}
+
+.player-page__pattern-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12.5px;
+}
+
+.player-page__pattern-row:last-child {
+  border-bottom: none;
+}
+
+.player-page__pattern-situation {
+  color: var(--text-dim);
+  flex: 1;
+}
+
+@media (max-width: 760px) {
+  .player-page__cols {
+    grid-template-columns: 1fr;
+  }
+}

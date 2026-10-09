@@ -1,0 +1,80 @@
+.plays-list h1 {
+  font-size: 22px;
+  margin-bottom: 4px;
+}
+
+.plays-list__sub {
+  color: var(--text-dim);
+  font-size: 13px;
+  margin: 0 0 18px;
+}
+
+.plays-list__empty {
+  padding: 60px 0;
+  text-align: center;
+  color: var(--text-faint);
+}
+
+.plays-list__table {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.plays-list__row {
+  display: grid;
+  grid-template-columns: 40px 90px 70px 70px 60px 50px 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 16px;
+  text-decoration: none;
+  color: var(--text);
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+}
+
+.plays-list__row:last-child {
+  border-bottom: none;
+}
+
+.plays-list__row:not(.plays-list__row--head):hover {
+  background: var(--surface-2);
+}
+
+.plays-list__row--head {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+  background: var(--surface-2);
+}
+
+.plays-list__desc {
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plays-list__flagcount {
+  font-family: "IBM Plex Mono", monospace;
+  color: var(--text-faint);
+}
+
+.plays-list__flagcount--active {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+@media (max-width: 760px) {
+  .plays-list__row {
+    grid-template-columns: 30px 60px 50px 50px 1fr;
+  }
+  .plays-list__row span:nth-child(6),
+  .plays-list__row span:nth-child(7) {
+    display: none;
+  }
+}

@@ -1,0 +1,861 @@
+<title>Protection Tracker</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --bg:#EDEFEC;
+    --surface:#FFFFFF;
+    --surface-2:#F6F7F4;
+    --border:#D7DBD3;
+    --border-strong:#C2C8BC;
+    --text:#1A221C;
+    --text-dim:#5C675E;
+    --text-faint:#8A9288;
+    --accent:#8E6A1E;
+    --accent-soft:#F1E6CB;
+    --confirmed:#2E7D4F;
+    --confirmed-soft:#DFF0E5;
+    --likely:#9C6414;
+    --likely-soft:#F3E6CE;
+    --possible:#3A5BA0;
+    --possible-soft:#E1E8F5;
+    --optional:#7A827A;
+    --gate-bg:#FBF3DC;
+    --gate-border:#D9B65B;
+    --shadow: 0 1px 2px rgba(20,24,18,0.06), 0 6px 20px -8px rgba(20,24,18,0.12);
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#11161A;
+      --surface:#171D22;
+      --surface-2:#1C2328;
+      --border:#2B343B;
+      --border-strong:#39444C;
+      --text:#E8ECE8;
+      --text-dim:#9AA6A0;
+      --text-faint:#6E7A73;
+      --accent:#D9B65B;
+      --accent-soft:#3A3322;
+      --confirmed:#5FBE84;
+      --confirmed-soft:#1E3327;
+      --likely:#E3AC4D;
+      --likely-soft:#3A2F1A;
+      --possible:#86A6EC;
+      --possible-soft:#222C42;
+      --optional:#7C8A83;
+      --gate-bg:#241F12;
+      --gate-border:#8A6B24;
+      --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 10px 30px -10px rgba(0,0,0,0.6);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#11161A;
+    --surface:#171D22;
+    --surface-2:#1C2328;
+    --border:#2B343B;
+    --border-strong:#39444C;
+    --text:#E8ECE8;
+    --text-dim:#9AA6A0;
+    --text-faint:#6E7A73;
+    --accent:#D9B65B;
+    --accent-soft:#3A3322;
+    --confirmed:#5FBE84;
+    --confirmed-soft:#1E3327;
+    --likely:#E3AC4D;
+    --likely-soft:#3A2F1A;
+    --possible:#86A6EC;
+    --possible-soft:#222C42;
+    --optional:#7C8A83;
+    --gate-bg:#241F12;
+    --gate-border:#8A6B24;
+    --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 10px 30px -10px rgba(0,0,0,0.6);
+    color-scheme: dark;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Source Sans 3', ui-sans-serif, system-ui, sans-serif;
+    font-size:15px;
+    line-height:1.5;
+  }
+  ::selection{ background:var(--accent-soft); }
+
+  .skip{ position:absolute; left:-9999px; }
+
+  .shell{
+    display:grid;
+    grid-template-columns: 220px 1fr;
+    max-width:1200px;
+    margin:0 auto;
+    gap:0;
+  }
+  @media (max-width: 860px){
+    .shell{ grid-template-columns: 1fr; }
+    .rail{ display:none; }
+  }
+
+  /* ---------- Scoreboard header ---------- */
+  header.board{
+    position:sticky; top:0; z-index:20;
+    grid-column:1 / -1;
+    background:var(--surface);
+    border-bottom:1px solid var(--border);
+    box-shadow:var(--shadow);
+  }
+  .board-inner{
+    max-width:1200px; margin:0 auto;
+    display:flex; align-items:center; gap:24px;
+    padding:14px 20px;
+  }
+  .board-title{
+    font-family:'Big Shoulders Display', sans-serif;
+    font-weight:800;
+    font-size:22px;
+    letter-spacing:0.02em;
+    color:var(--text);
+    white-space:nowrap;
+    display:flex; align-items:baseline; gap:8px;
+  }
+  .board-title small{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    font-weight:500;
+    color:var(--text-faint);
+    letter-spacing:0.06em;
+  }
+  .score{
+    display:flex; align-items:center; gap:10px;
+    font-family:'IBM Plex Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    color:var(--text-dim);
+    font-size:13px;
+  }
+  .score strong{ color:var(--text); font-size:15px; }
+  .score .pct{ color:var(--accent); font-weight:600; }
+  .meter{
+    width:130px; height:8px; border-radius:5px;
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    overflow:hidden;
+  }
+  .meter > i{
+    display:block; height:100%;
+    background:linear-gradient(90deg, var(--accent), var(--confirmed));
+    transition:width .25s ease;
+  }
+  .board-controls{
+    margin-left:auto;
+    display:flex; align-items:center; gap:10px;
+  }
+  .search{
+    display:flex; align-items:center; gap:6px;
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    border-radius:7px;
+    padding:6px 10px;
+  }
+  .search input{
+    border:none; background:transparent; outline:none;
+    color:var(--text); font-family:inherit; font-size:13px;
+    width:150px;
+  }
+  .search input::placeholder{ color:var(--text-faint); }
+  .search svg{ width:14px; height:14px; color:var(--text-faint); flex:none; }
+
+  .toggle{
+    display:flex; align-items:center; gap:6px;
+    font-size:12.5px; color:var(--text-dim);
+    cursor:pointer; user-select:none;
+    padding:6px 10px; border-radius:7px;
+    border:1px solid var(--border);
+    background:var(--surface-2);
+  }
+  .toggle input{ accent-color:var(--accent); }
+  .toggle:hover{ border-color:var(--border-strong); }
+
+  @media (max-width:760px){
+    .board-inner{ flex-wrap:wrap; }
+    .board-controls{ margin-left:0; width:100%; }
+  }
+
+  /* ---------- Left rail ---------- */
+  .rail{
+    padding:22px 14px 40px;
+    position:sticky; top:63px; align-self:start;
+    height:calc(100vh - 63px);
+    overflow-y:auto;
+    border-right:1px solid var(--border);
+  }
+  .rail-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px; letter-spacing:0.12em; text-transform:uppercase;
+    color:var(--text-faint); margin:0 0 10px 8px;
+  }
+  .rail a{
+    display:flex; align-items:center; gap:10px;
+    text-decoration:none; color:var(--text-dim);
+    padding:8px 8px; border-radius:8px;
+    font-size:13px;
+    margin-bottom:2px;
+  }
+  .rail a:hover{ background:var(--surface-2); color:var(--text); }
+  .rail a.active{ background:var(--surface-2); color:var(--text); font-weight:600; }
+  .rail-num{
+    font-family:'Big Shoulders Display', sans-serif;
+    font-weight:700; font-size:15px;
+    width:22px; height:22px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    border:1.5px solid var(--border-strong);
+    color:var(--text-dim);
+    flex:none;
+  }
+  .rail a.done .rail-num{ background:var(--confirmed); border-color:var(--confirmed); color:#08140c; }
+  .rail-name{ flex:1; }
+  .rail-frac{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--text-faint); }
+
+  /* ---------- Main ---------- */
+  main{ padding:26px 24px 80px; min-width:0; }
+
+  .intro{
+    margin:0 0 28px;
+    color:var(--text-dim);
+    font-size:13.5px;
+    max-width:66ch;
+  }
+  .intro code{
+    font-family:'IBM Plex Mono', monospace;
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    padding:1px 5px; border-radius:4px;
+    font-size:12px;
+    color:var(--text);
+  }
+
+  .phase{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:14px;
+    margin-bottom:22px;
+    box-shadow:var(--shadow);
+    scroll-margin-top:80px;
+    overflow:hidden;
+  }
+  .phase-head{
+    display:flex; align-items:flex-start; gap:16px;
+    padding:20px 22px 16px;
+    border-bottom:1px solid var(--border);
+  }
+  .phase-num{
+    font-family:'Big Shoulders Display', sans-serif;
+    font-weight:800; font-size:40px; line-height:0.85;
+    color:var(--accent);
+    flex:none;
+  }
+  .phase-head h2{
+    font-family:'Big Shoulders Display', sans-serif;
+    font-weight:700; font-size:21px;
+    text-wrap:balance;
+    margin:2px 0 4px;
+    letter-spacing:0.01em;
+  }
+  .phase-goal{
+    font-style:italic;
+    color:var(--text-dim);
+    font-size:13px;
+    max-width:62ch;
+    margin:0;
+  }
+  .phase-tally{
+    margin-left:auto; text-align:right; flex:none;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px; color:var(--text-faint);
+    padding-top:6px;
+  }
+  .phase-tally strong{ color:var(--text); font-size:15px; }
+  .phase-ring{
+    width:34px; height:34px; margin:4px 0 0 auto;
+  }
+
+  .task-list{ padding:6px 14px 14px; }
+
+  .task{
+    border-top:1px solid var(--border);
+  }
+  .task:first-child{ border-top:none; }
+  .task > summary{
+    cursor:pointer; list-style:none;
+    display:flex; align-items:center; gap:10px;
+    padding:13px 8px;
+    font-weight:600; font-size:14px;
+  }
+  .task > summary::-webkit-details-marker{ display:none; }
+  .task > summary .chev{
+    width:14px; height:14px; flex:none; color:var(--text-faint);
+    transition:transform .15s ease;
+  }
+  .task[open] > summary .chev{ transform:rotate(90deg); }
+  .task-id{
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:500; font-size:12px;
+    color:var(--text-faint);
+    width:26px; flex:none;
+  }
+  .task-title{ flex:1; }
+  .task-frac{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px; color:var(--text-faint);
+    flex:none;
+  }
+  .mini-meter{
+    width:56px; height:5px; border-radius:3px;
+    background:var(--surface-2); border:1px solid var(--border);
+    overflow:hidden; flex:none;
+  }
+  .mini-meter > i{ display:block; height:100%; background:var(--confirmed); }
+
+  .subtasks{ padding:0 0 10px 0; display:flex; flex-direction:column; gap:2px; }
+
+  .sub{
+    display:grid;
+    grid-template-columns: 22px 20px 1fr;
+    gap:10px;
+    padding:9px 8px 11px;
+    border-radius:9px;
+    align-items:start;
+  }
+  .sub:hover{ background:var(--surface-2); }
+  .sub.match{ outline:1.5px dashed var(--accent); outline-offset:-1px; }
+  .sub.hidden-filter{ display:none; }
+
+  .sub-id{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px; color:var(--text-faint);
+    padding-top:3px;
+  }
+  .sub input[type="checkbox"]{
+    width:17px; height:17px; margin:2px 0 0;
+    accent-color:var(--confirmed);
+    cursor:pointer;
+  }
+  .sub-body{ min-width:0; }
+  .sub-title{
+    font-weight:600; font-size:13.8px;
+    color:var(--text);
+    text-wrap:balance;
+  }
+  .sub.done .sub-title{ color:var(--text-faint); text-decoration:line-through; text-decoration-color:var(--border-strong); }
+  .sub.done .sub-detail{ color:var(--text-faint); }
+  .sub-detail{
+    margin:3px 0 7px;
+    font-size:12.8px;
+    color:var(--text-dim);
+    max-width:72ch;
+  }
+  .sub-tags{ display:flex; flex-wrap:wrap; gap:5px; align-items:center; }
+  .tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px; padding:2px 6px; border-radius:5px;
+    border:1px solid var(--border);
+    color:var(--text-dim);
+    white-space:nowrap;
+  }
+  .tag.optional{ color:var(--optional); border-color:var(--optional); background:transparent; }
+
+  /* ---------- Review gate ---------- */
+  .gate{
+    margin:10px 8px 14px;
+    background:var(--gate-bg);
+    border:1.5px dashed var(--gate-border);
+    border-radius:10px;
+    padding:14px 16px;
+    display:grid;
+    grid-template-columns:20px 1fr;
+    gap:12px;
+  }
+  .gate input[type="checkbox"]{
+    width:18px; height:18px; margin-top:2px;
+    accent-color:var(--gate-border);
+    cursor:pointer;
+  }
+  .gate-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase;
+    color:var(--accent);
+    display:flex; align-items:center; gap:7px;
+    margin-bottom:4px;
+  }
+  .gate-flag{
+    display:inline-flex; width:10px; height:10px;
+    background:var(--gate-border); border-radius:1px;
+    transform:rotate(45deg);
+  }
+  .gate-text{ font-size:13.3px; color:var(--text); }
+  .gate.done .gate-text{ color:var(--text-dim); }
+  .gate-reqs{ margin-top:7px; display:flex; gap:5px; }
+
+  /* ---------- Confidence legend ---------- */
+  .legend{
+    display:flex; flex-wrap:wrap; gap:14px;
+    margin:0 0 24px;
+    font-size:12.5px; color:var(--text-dim);
+  }
+  .legend span{ display:inline-flex; align-items:center; gap:6px; }
+  .dot{ width:9px; height:9px; border-radius:50%; flex:none; }
+  .dot.confirmed{ background:var(--confirmed); }
+  .dot.likely{ background:var(--likely); }
+  .dot.possible{ background:var(--possible); }
+  .dot.gate-dot{ background:var(--gate-border); border-radius:2px; transform:rotate(45deg); width:8px; height:8px; }
+
+  /* ---------- Build order strip ---------- */
+  .order-section{ margin-top:30px; }
+  .order-section h2{
+    font-family:'Big Shoulders Display', sans-serif;
+    font-size:19px; margin:0 0 4px;
+  }
+  .order-note{ color:var(--text-dim); font-size:12.8px; margin:0 0 14px; max-width:68ch; }
+  .waves{
+    display:flex; gap:12px;
+    overflow-x:auto;
+    padding:4px 2px 14px;
+  }
+  .wave{
+    flex:none; width:128px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:10px;
+    box-shadow:var(--shadow);
+  }
+  .wave-num{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px; color:var(--text-faint);
+    letter-spacing:0.08em; text-transform:uppercase;
+    margin-bottom:7px;
+  }
+  .wave-chips{ display:flex; flex-wrap:wrap; gap:5px; }
+  .wave-chip{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px; padding:2px 6px; border-radius:5px;
+    background:var(--surface-2); border:1px solid var(--border);
+    color:var(--text-dim);
+  }
+  .wave-chip.done{ background:var(--confirmed-soft); color:var(--confirmed); border-color:var(--confirmed); }
+
+  footer{
+    text-align:center; padding:30px 20px 50px;
+    color:var(--text-faint); font-size:12px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; }
+  }
+
+  :focus-visible{ outline:2px solid var(--accent); outline-offset:2px; border-radius:4px; }
+</style>
+
+<header class="board">
+  <div class="board-inner">
+    <div class="board-title">🏈 Protection Tracker<small>PASS-PRO ERROR FINDER · BUILD PLAN</small></div>
+    <div class="score">
+      <span><strong id="scoreDone">0</strong>/<span id="scoreTotal">0</span> done</span>
+      <div class="meter"><i id="scoreBar" style="width:0%"></i></div>
+      <span class="pct" id="scorePct">0%</span>
+    </div>
+    <div class="board-controls">
+      <label class="toggle"><input type="checkbox" id="hideOptional" /> Core only</label>
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="searchBox" type="text" placeholder="Search tasks or req id…" />
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="rail" id="rail" aria-label="Phase navigation">
+    <p class="rail-label">Phases</p>
+  </nav>
+
+  <main>
+    <p class="intro">Six phases, each closing on a <strong>Review Gate</strong>. Every sub-task cites the requirement IDs it satisfies from <code>requirements.md</code>; items marked <span class="tag optional" style="padding:1px 5px;">optional</span> are tests/enhancements that can be skipped for a faster MVP — everything else is core. Check boxes as you go; your progress is kept in this browser only.</p>
+
+    <div class="legend" id="legend"></div>
+
+    <div id="phases"></div>
+
+    <section class="order-section">
+      <h2>Build order</h2>
+      <p class="order-note">The dependency graph collapsed into waves — tasks in the same wave have no dependency on each other and can be built in parallel; each wave depends only on earlier ones.</p>
+      <div class="waves" id="waves"></div>
+    </section>
+
+    <footer>Pass Protection Error Finder — NFL Big Data Bowl 2023, 2021 season, Weeks 1–8, 122 games.</footer>
+  </main>
+</div>
+
+<script>
+const DATA = [
+{
+  id:0, name:"Data Check & Foundation",
+  goal:"A reproducible monorepo, raw data relocated, a one-time Parquet conversion, Section 2 data-quality findings written to reports/data_check.md, and a single robust snap / end-of-dropback resolver with tests. No detection, no UI yet.",
+  tasks:[
+    { num:"1", title:"Scaffold the monorepo and reproducible setup", subs:[
+      { id:"1.1", title:"Create the monorepo skeleton and tooling config", detail:"Create backend/ (Python 3.11+ package with pipeline/, api/, tests/), frontend/ (React+TS+Vite app with src/, src/__tests__/), and top-level data/raw/, data/processed/, models/, reports/, config/ directories. Pin Polars, DuckDB, FastAPI, uvicorn, scikit-learn, LightGBM, pytest, hypothesis in backend/pyproject.toml; add frontend/package.json with React, TypeScript, Vite, Recharts, and Vitest + Testing Library.", reqs:["1.1","1.6"] },
+      { id:"1.2", title:"Create the root Makefile with data, dev, and test targets", detail:"make data runs the full pipeline module; make dev starts FastAPI + Vite; make test runs pytest plus frontend component tests. Document prerequisites so a fresh clone runs make data then make dev without manual steps.", reqs:["1.3","1.4","16.2"] },
+      { id:"1.3", title:"Create config/thresholds.yaml and a typed config loader", detail:"Write the full thresholds file (field, engagement, rusher, level2, level3, patterns, cost) with comments, including patterns.min_opportunities (10), level3.pressure_spike_window (5 frames), rusher.set_point_fallback_seconds (0.5s), level2.excluded_block_types ([CH,SR,NB]). Implement backend/pipeline/config.py — no numeric literals elsewhere.", reqs:["1.5"] },
+      { id:"1.4", title:"Relocate raw CSVs into data/raw/", detail:"Move games.csv, plays.csv, players.csv, pffScoutingData.csv, and tracking/*.csv into data/raw/; update path references.", reqs:["1.2"] },
+    ]},
+    { num:"2", title:"Build the snap / end-of-dropback resolver", subs:[
+      { id:"2.1", title:"Implement resolve_play_frames with fallback precedence", detail:"backend/pipeline/resolve.py implements resolve_play_frames(play_tracking) → (snapFrameId, endOfDropbackFrameId, resolved, reason) using snap precedence ball_snap → autoevent_ballsnap and end precedence pass_forward → autoevent_passforward → qb_sack/strip_sack → run(scramble) → last terminal event. Marks resolved=false with unresolvedReason when no snap/end variant or end precedes snap — such plays never emit flags.", reqs:["2.2","2.3"] },
+      { id:"2.2", title:"Write unit tests for the resolver", detail:"Hand-made plays exercising each precedence branch, manual-over-automatic preference, and all three unresolved cases (no snap, no end, end-before-snap).", reqs:["2.2","2.3"] },
+    ]},
+    { num:"3", title:"Run the data check and convert tracking to Parquet", subs:[
+      { id:"3.1", title:"Compute data-check statistics", detail:"backend/pipeline/data_check.py computes distinct event values and the last event per play, surveys snap/end-of-dropback variants via the resolver, and computes missing-value rates for pff_nflIdBlockedPlayer, pff_positionLinedUp, and tracking coordinate/motion fields.", reqs:["2.1","2.4"] },
+      { id:"3.2", title:"Convert tracking CSVs to Parquet once", detail:"backend/pipeline/ingest.py reads the 122 tracking CSVs with Polars and writes Parquet to data/processed/ (partitioned by gameId where helpful); later stages query Parquet via DuckDB/Polars rather than re-reading CSVs.", reqs:["2.5","1.2"] },
+      { id:"3.3", title:"Write reports/data_check.md", detail:"Emit the findings from 3.1 plus the list of unresolved plays with (gameId, playId) and reason.", reqs:["2.6"] },
+    ]},
+  ],
+  gate:{ num:"4", title:"Review Gate — Phase 0", text:"Confirm make data converts tracking to Parquet on a fresh clone, reports/data_check.md is populated, and resolver tests pass. Ensure all tests pass, ask the user if questions arise.", reqs:["16.1","16.2"] },
+},
+{
+  id:1, name:"Play Viewer (no flags)",
+  goal:"Preprocessing (normalization, LOS, time-since-snap, PFF join), a tested geometry module, a FastAPI frames endpoint, and a React Canvas animated field with timeline, event markers, and controls. The user can pick any play and watch it. No flags are produced yet.",
+  tasks:[
+    { num:"5", title:"Preprocessing and normalization", subs:[
+      { id:"5.1", title:"Implement direction normalization and enrichment", detail:"backend/pipeline/normalize.py applies the left-play transform (x=120-x, y=53.3-y, o=(o+180)%360, dir=(dir+180)%360), computes Line_Of_Scrimmage as normalized ball x at the snap frame, computes timeSinceSnap=(frameId-snapFrameId)/10, and tags ball rows (nflId NA → isBall=true, team=football).", reqs:["3.1","3.2","3.3","3.5"] },
+      { id:"5.2", title:"Join PFF role and alignment onto tracking and write tracking_norm", detail:"Join pff_role and pff_positionLinedUp by (gameId, playId, nflId) onto every tracking row; write the tracking_norm Parquet table.", reqs:["3.4"] },
+      { id:"5.3", title:"Property tests for normalization and time-since-snap", detail:"Property 1 — direction normalization is involutive on left plays. Property 2 — time since snap is monotonic and zero at the snap.", reqs:["3.1","3.3"], optional:true },
+    ]},
+    { num:"6", title:"Geometry module", subs:[
+      { id:"6.1", title:"Implement pure geometry primitives", detail:"backend/pipeline/geometry.py implements Euclidean distance, shoelace polygon area (absolute value), convex_hull (monotone-chain, CCW order), segment crossing (orientation-sign test), and direction flip (d+180)%360. Composes convex_hull with shoelace so pocket area = shoelace area of the hull of pass-blocker positions + QB.", reqs:["4.1","4.7"] },
+      { id:"6.2", title:"Unit + property tests for geometry primitives", detail:"Hand-made fixtures with known answers for distance, area, crossing, flip, plus an unordered-input convex-hull-area test. Property 3 — pocket area equals the hull's shoelace area, order-independent. Property 4 — distance is symmetric and non-negative. Property 5 — direction flip is involutive.", reqs:["4.1","4.7"] },
+    ]},
+    { num:"7", title:"FastAPI service and frames endpoint", subs:[
+      { id:"7.1", title:"Create the FastAPI app and DuckDB-over-Parquet access layer", detail:"backend/api/ creates the app, a DuckDB connection helper over data/processed/ Parquet, and JSON serializers; never loads a whole game into memory.", reqs:["2.5","1.6"] },
+      { id:"7.2", title:"Implement GET /plays and GET /plays/{gameId}/{playId}", detail:"/plays returns the scoped play list and accepts myTeam, opponent, mode (self|opponent), games; /plays/{...} returns one play's header, meta (snap/end/LOS/first-down), per-frame objects, and pocketByFrame — a single play's frames only.", reqs:["2.5","13.8","10.1","10.4"] },
+      { id:"7.3", title:"API tests for the plays/frames endpoints", detail:"Assert /plays/{...} returns only one play's frames and includes meta and header fields.", reqs:["2.5","13.8"], optional:true },
+    ]},
+    { num:"8", title:"React Canvas play viewer", subs:[
+      { id:"8.1", title:"Build the API client and app shell with routing", detail:"frontend/src/ creates a typed API client and the <App> shell with routes for the viewer; add a play picker that loads any play.", reqs:["13.8"] },
+      { id:"8.2", title:"Implement <FieldCanvas> animated renderer", detail:"Draw yard lines, LOS, first-down line; player dots colored by team with jersey numbers; ball drawn separately; 1s trails with full-path toggle; a requestAnimationFrame loop on a 100ms accumulator targeting 10fps for 23 objects via a single clear + batched fills.", reqs:["13.1","13.2","13.4","13.9"] },
+      { id:"8.3", title:"Implement <PlayHeader>, <Timeline> (events only), and <Controls>", detail:"Header with teams, quarter, clock, down & distance, result, coverage, description; timeline with snap/throw/sack markers (no flags yet); controls for play/pause, 0.25x/0.5x/1x, scrubber, arrow-key stepping.", reqs:["13.3","13.6","13.8"] },
+      { id:"8.4", title:"Component test for the viewer controls", detail:"Assert speed selection and scrubber update the rendered frame index.", reqs:["13.3"], optional:true },
+    ]},
+  ],
+  gate:{ num:"9", title:"Review Gate — Phase 1", text:"Confirm any play can be selected and watched smoothly with header, event timeline, and controls, and geometry/preprocessing tests pass. Ensure all tests pass, ask the user if questions arise.", reqs:["16.1","16.2"] },
+},
+{
+  id:2, name:"Level 1 Flags & Alerts List",
+  goal:"Confirmed-error detection, the stable flag schema persisted to Parquet, a flags API, timeline flag markers, the alerts list screen, and the my-team / opponent URL switch.",
+  tasks:[
+    { num:"10", title:"Flag schema and Level 1 detection", subs:[
+      { id:"10.1", title:"Define the canonical Flag schema and writer", detail:"backend/pipeline/detect/flag.py defines the stable flag record (flagId, gameId, playId, errorFrameId, involvedNflIds, team, errorType, confidenceLevel, explanation, epaCost, detail) with the invariant snapFrameId ≤ errorFrameId ≤ lastFrameId, a deterministic flagId hash, and a flags Parquet writer, broadcaster-reusable. Records per-type errorFrameId derivation: penalty → snap frame; sack/hit/hurry allowed → engaged (or pff_nflIdBlockedPlayer) rusher's closest-approach frame; beatenByDefender → frame rusher passes blocker, falling back to closest-approach.", reqs:["8.1","16.4","5.1","5.2","5.3","5.4","5.5"] },
+      { id:"10.2", title:"Implement Level 1 Confirmed detection", detail:"backend/pipeline/detect/level1.py emits flags for foulName*+foulNFLId* penalties (errorFrameId = snap frame), pff_sackAllowed|pff_hitAllowed|pff_hurryAllowed==1 (errorFrameId = closest-approach frame of the engaged rusher or pff_nflIdBlockedPlayer), and pff_beatenByDefender==1 (errorFrameId = frame rusher passes blocker, falling back to closest-approach), recorded data only, no modeling; skips rows whose required PFF label is NA.", reqs:["5.1","5.2","5.3","5.4","5.5"] },
+      { id:"10.3", title:"Tests for Level 1 attribution and flag invariants", detail:"Fixtures with/without PFF labels and penalties asserting correct attribution, correct per-type error-frame derivation, and no-fire on NA labels. Property 7 — every flag carries required fields and a resolvable error frame. Property 8 — every Level 1 flag's error frame matches its documented derivation.", reqs:["5.1","5.2","5.3","5.4","8.1"] },
+    ]},
+    { num:"11", title:"Flags API and team scoping", subs:[
+      { id:"11.1", title:"Implement GET /flags with scoping and attach flags to the play endpoint", detail:"/flags accepts myTeam, opponent, mode, games, confidenceLevel, errorType, player, week, situation; mode=self scopes to the my-team's own errors, mode=opponent to the opponent's errors; /plays/{...} now returns the play's flags array.", reqs:["10.1","10.2","10.3","10.4","11.1","11.2"] },
+      { id:"11.2", title:"API test for flag scoping", detail:"Assert myTeam/opponent/mode and game scoping filters the returned flags (self vs opponent perspective).", reqs:["10.2","10.3","10.4"], optional:true },
+    ]},
+    { num:"12", title:"Alerts list, team selector, and timeline flag markers", subs:[
+      { id:"12.1", title:"Implement <TeamSelector> writing teams and mode to the URL", detail:"My-team + opponent abbreviation controls, both drawn from games.csv, at the top of the app; store myTeam, opponent, mode (self|opponent) in URL query params and rescope screens on change.", reqs:["10.1","10.2","10.3","10.4"] },
+      { id:"12.2", title:"Implement <AlertsList> with filters and row-click navigation", detail:"Table of all flags for the selected team and games; filters for confidence, error type, player, week, situation; cost column labeled \"play EPA (shared)\", showing \"cost unavailable\" when epaCost is null; row click opens <PlayViewer> at the flag's errorFrameId.", reqs:["11.1","11.2","11.3","8.6","8.8"] },
+      { id:"12.3", title:"Add flag markers to <Timeline> and rings around flagged players", detail:"Flag markers colored by confidence level on the timeline; draw a ring around flagged players and show role/alignment/per-play stats on dot click.", reqs:["13.6","13.7"] },
+      { id:"12.4", title:"Component tests for selector, alerts, and timeline", detail:"TeamSelector writes myTeam/opponent/mode to the URL and rescopes; AlertsList row click routes to the viewer at the error frame; Timeline renders flag markers colored by confidence.", reqs:["10.1","11.3","13.6"], optional:true },
+    ]},
+  ],
+  gate:{ num:"13", title:"Review Gate — Phase 2", text:"Confirm Level 1 flags persist, appear in the alerts list and on the timeline, open the viewer at the error frame, and the team switch rescopes the UI. Ensure all tests pass, ask the user if questions arise.", reqs:["16.1","16.2"] },
+},
+{
+  id:3, name:"Features & Level 2 Rules",
+  goal:"The full feature/measurement set (engagements, depth conceded, pocket, rush path, closest approach, get-off), the four Level 2 rules, calibration against Level 1 written to reports/level2_calibration.md, and Level 2 flags shown in the UI labeled \"Likely: check the film\".",
+  tasks:[
+    { num:"14", title:"Feature and measurement computation", subs:[
+      { id:"14.1", title:"Compute engagements and the blocker set point, write the engagements table", detail:"For each blocker↔rusher pair, detect runs of ≥3 consecutive frames within engagement.distance_yd, recording start/end/min-distance, cross-checked against pff_nflIdBlockedPlayer into pffBlockedConsistent. Compute the blocker set point as the velocity-stop frame within 1.0s of the snap; fall back to position at set_point_fallback_seconds (0.5s default) and record setPointFallbackUsed=true.", reqs:["4.3","4.8","4.9"] },
+      { id:"14.2", title:"Property test for engagement run length", detail:"Property 6 — every engagement spans at least three consecutive in-range frames.", reqs:["4.3"], optional:true },
+      { id:"14.3", title:"Compute play-level and player-level measurements", detail:"backend/pipeline/features.py computes play_features (time to throw, rusher/blocker counts, pressure, pocket area per frame as the hull's shoelace area, pocket shrink rate) and player_measurements (get-off time, depth conceded at 1.0/1.5/2.0/2.5s, closest approach, rush lateral direction, speed at first contact, crossed-with-rusher). Computes timeToPressure and the win-rate-by-rush-type inputs rusherPassedBlocker / reachedQbWithin2_5s, grouped inside/outside.", reqs:["4.1","4.2","4.4","4.5","4.6","14.3","14.4"] },
+      { id:"14.4", title:"Unit tests for composed measurements", detail:"Hand-made plays asserting get-off time, depth conceded relative to set point, pocket area/shrink, closest approach, time to pressure, and win-rate-by-rush-type inputs.", reqs:["4.1","4.2","4.4","4.6","14.3","14.4"], optional:true },
+    ]},
+    { num:"15", title:"Level 2 rule detection", subs:[
+      { id:"15.1", title:"Implement the four Level 2 rules as explicit code", detail:"backend/pipeline/detect/level2.py: free rusher (error frame = line-of-blockers crossing), wasted double team, stunt not handled, lost escape lane — each reads thresholds from config and labels flags \"Likely: check the film\". Blocker-count rules count only pass blockers whose block type is not CH, SR, or NB.", reqs:["6.1","6.2","6.3","6.4","6.5","6.6"] },
+      { id:"15.2", title:"Tests for each Level 2 rule and error-frame placement", detail:"Crafted plays triggering each rule and asserting correct error-frame placement, including a case verifying CH/SR/NB blockers are excluded from the blocker count. Property 7 — every flag carries required fields and a resolvable error frame.", reqs:["6.1","6.2","6.3","6.4","6.6"] },
+      { id:"15.3", title:"Calibrate Level 2 on training games and write reports/level2_calibration.md", detail:"Tune thresholds on training games only; report each rule's precision/recall vs Level 1 PFF labels on held-out games only; for lost escape lane record \"no answer key\" and validate by manual review of a sample of flagged plays instead.", reqs:["6.7","6.8"] },
+      { id:"15.4", title:"Test calibration report generation", detail:"Run calibration on a small fixture set and assert the report is produced with per-rule precision/recall and the \"no answer key\" entry for lost escape lane.", reqs:["6.7","6.8"], optional:true },
+    ]},
+    { num:"16", title:"Surface Level 2 flags in the UI", subs:[
+      { id:"16.1", title:"Render Level 2 flags with the \"Likely\" label", detail:"Level 2 flags flow through the existing flags API, alerts list, and timeline markers; display the \"Likely: check the film\" label and the \"play EPA (shared)\" / \"cost unavailable\" cost labels.", reqs:["6.5","11.1","13.6","8.8"] },
+    ]},
+  ],
+  gate:{ num:"17", title:"Review Gate — Phase 3", text:"Confirm feature tables, Level 2 flags, and the calibration report are produced, and Level 2 flags appear in the UI labeled \"Likely\". Ensure all tests pass, ask the user if questions arise.", reqs:["16.1","16.2"] },
+},
+{
+  id:4, name:"Level 3 Models & Cost Engine",
+  goal:"A baseline expected-rep model then a LightGBM upgrade, a per-frame pressure-probability model, by-game splits, held-out metrics in reports/models.md, the nflverse EPA cost engine joined to flags, and Level 3 flags labeled \"Possible: film to review\".",
+  tasks:[
+    { num:"18", title:"By-game split and low-rep shrinkage utilities", subs:[
+      { id:"18.1", title:"Implement by-game train/test split, leakage-free history, and shrinkage", detail:"backend/pipeline/detect/split.py splits strictly by gameId (no random frame/play split); computes Level 3 player-history features from training games only or leave-one-game-out; implements empirical-Bayes shrinkage of low-rep player history toward position averages below rep_threshold; tracks rep counts everywhere.", reqs:["7.6","7.7","7.8"] },
+      { id:"18.2", title:"Property tests for split disjointness, no leakage, and shrinkage", detail:"Property 10 — train and test game sets are disjoint. Property 11 — Level 3 features use no data from a play's own held-out game. Property 12 — low-rep shrinkage is a convex combination toward the position average.", reqs:["7.6","7.7","7.8"] },
+    ]},
+    { num:"19", title:"Expected-rep model (baseline then GBM)", subs:[
+      { id:"19.1", title:"Establish the situational-average baseline", detail:"backend/pipeline/detect/expected_rep.py computes situational averages for depth conceded at 1.5s and probability of being beaten by 2.5s per engagement before any GBM, using leakage-free player history.", reqs:["7.1","7.2","7.7"] },
+      { id:"19.2", title:"Train the LightGBM expected-rep model and emit worse-than-expected flags", detail:"Train on alignments, player history (shrunk, leakage-free), rusher/blocker counts, down & distance; emit a Possible flag when a rep's residual exceeds rep_residual_sigma; persist the model under models/.", reqs:["7.1","7.2","7.5","7.7"] },
+    ]},
+    { num:"20", title:"Pressure-probability model", subs:[
+      { id:"20.1", title:"Train the per-frame pressure model and emit pressure-spike flags", detail:"backend/pipeline/detect/pressure.py estimates per-frame pressure probability from positions/speeds of rushers, blockers, and QB, trained on PFF hit/hurry/sack labels; detects a pressure spike as a rise of ≥ pressure_spike_delta (0.25) within a sliding 5-frame window; attributes the flag to the blocker nearest the causing rusher; persists the model.", reqs:["7.3","7.4","7.5","7.7"] },
+      { id:"20.2", title:"Report held-out metrics to reports/models.md", detail:"Write AUC + calibration plot for the pressure model and depth error for the expected-rep model on held-out games.", reqs:["7.10"] },
+      { id:"20.3", title:"Tests for Level 3 flag labeling and sample-size presence", detail:"Assert Possible flags are labeled \"Possible: film to review\" and model-backed player stats carry sample sizes. Property 9 — no player-level statistic is presented without its sample size.", reqs:["7.5","7.9"], optional:true },
+    ]},
+    { num:"21", title:"Cost engine", subs:[
+      { id:"21.1", title:"Implement the nflverse EPA cost engine", detail:"backend/pipeline/cost.py auto-downloads nflverse play-by-play EPA to data/processed/epa_cache.parquet, merges (gameId,playId)→(old_game_id,play_id), expresses cost from the charged team's perspective (sign flipped for defensive errors), shares the play's team-perspective EPA equally across its flags (epaCost = teamEPA / k); sets epaCost = null when offline/unmatched while still producing flags. Labels the value \"play EPA (shared)\".", reqs:["8.2","8.3","8.4","8.5","8.6","8.8"] },
+      { id:"21.2", title:"Cost merge and conservation tests", detail:"Fixture nflverse rows: matched → value, unmatched/offline → null; defensive error flips the EPA sign; multiple flags on one play split the team EPA equally. Property 13 — shared costs sum to the play's team-perspective EPA.", reqs:["8.2","8.3","8.4","8.5"], optional:true },
+    ]},
+    { num:"22", title:"Surface Level 3 flags in the UI", subs:[
+      { id:"22.1", title:"Render Level 3 flags with the \"Possible\" label and cost", detail:"Level 3 flags flow through the flags API and UI with the \"Possible: film to review\" label; show epaCost labeled \"play EPA (shared)\" or \"cost unavailable\" when null.", reqs:["7.5","8.6","8.8"] },
+    ]},
+  ],
+  gate:{ num:"23", title:"Review Gate — Phase 4", text:"Confirm the baseline-then-GBM expected-rep model, the pressure model, by-game splits, reports/models.md, and EPA-costed Level 3 flags are produced and shown. Ensure all tests pass, ask the user if questions arise.", reqs:["16.1","16.2"] },
+},
+{
+  id:5, name:"Patterns & Player Pages",
+  goal:"The pattern engine (grouping, opportunities denominators, Wilson 90% intervals, ranking), the patterns screen with self-scout / opponent tabs, the player page with sample sizes, and the \"What this tool can't tell you\" note reachable from every screen.",
+  tasks:[
+    { num:"24", title:"Pattern engine", subs:[
+      { id:"24.1", title:"Implement grouping, opportunities denominators, Wilson intervals, and ranking", detail:"backend/pipeline/patterns.py groups flags by player, error type, situation (down, distance band, field zone, score state), opponent alignment/rush type, and protection features. Computes the opportunities denominator per error type; sets sampleSize = opportunities, rate = count / opportunities, and the Wilson 90% interval; hides patterns with opportunities < patterns.min_opportunities (default 10); ranks by count × avgCost.", reqs:["9.1","9.2","9.3","9.4","9.5","9.6"] },
+      { id:"24.2", title:"Property tests for rate/interval bounds and ranking order", detail:"Property 14 — pattern rate interval is well-formed (rate == count/opportunities, Wilson 90% bounds). Property 15 — patterns are ranked by frequency times average cost.", reqs:["9.3","9.6"], optional:true },
+    ]},
+    { num:"25", title:"Patterns and player APIs", subs:[
+      { id:"25.1", title:"Implement GET /patterns, GET /players/{nflId}, and GET /limitations", detail:"/patterns and /players/{nflId} accept myTeam, opponent, mode, games (plus perspective for patterns); /patterns returns ranked patterns with play refs; /players/{nflId} returns player metrics each with sampleSize, flags, and patterns; /limitations returns the static note content.", reqs:["9.2","9.3","10.1","10.4","12.1","14.1","14.2","14.3","14.4","15.1","15.2"] },
+      { id:"25.2", title:"API test for sample-size presence on player metrics", detail:"Property 9 — no player-level statistic is presented without its sample size.", reqs:["14.5"], optional:true },
+    ]},
+    { num:"26", title:"Patterns screen, player page, and limitations note", subs:[
+      { id:"26.1", title:"Implement <PatternsScreen> with Self-scout and Opponent tabs", detail:"Ranked pattern table (by rank score) and a Recharts chart of rate + 90% interval; selecting a pattern links to its plays.", reqs:["12.1","12.2"] },
+      { id:"26.2", title:"Implement <PlayerPage> with metrics and sample sizes", detail:"Show the player's flags and patterns; key metrics (get-off time, time to pressure, depth conceded, win rate by rush type) each displayed with its sample size.", reqs:["14.1","14.2","14.3","14.4","14.5"] },
+      { id:"26.3", title:"Implement the limitations note reachable from every screen", detail:"<LimitationsLink> on every screen opening <LimitationsNote> stating play call unknown, pass plays only / no run blocking, tracking ends around the throw, and small eight-week samples.", reqs:["15.1","15.2"] },
+      { id:"26.4", title:"Component test for patterns tabs and limitations reachability", detail:"Assert the Self-scout/Opponent tabs switch perspective and the limitations link is present on each screen.", reqs:["12.1","15.1"], optional:true },
+    ]},
+  ],
+  gate:{ num:"27", title:"Final Review Gate — Phase 5", text:"Confirm patterns rank correctly with intervals, the player page shows sample-sized metrics, and the limitations note is reachable everywhere; run make test and the fresh-clone make data → make dev smoke check. Ensure all tests pass, ask the user if questions arise.", reqs:["16.1","16.2"] },
+},
+];
+
+const WAVES = [
+  ["1.1"],["1.2","1.3","1.4","2.1"],["2.2","3.1","3.2"],["3.3","5.1","6.1"],
+  ["5.2","5.3","6.2","7.1"],["7.2","7.3","8.1"],["8.2","8.3","8.4","10.1"],
+  ["10.2","10.3","14.1","14.3"],["11.1","14.2","14.4","15.1"],["11.2","12.1","15.2","15.3"],
+  ["12.2","12.3","15.4","16.1","18.1"],["12.4","18.2","19.1","21.1"],["19.2","20.1","21.2"],
+  ["20.2","20.3","22.1","24.1"],["24.2","25.1"],["25.2","26.1","26.2","26.3"],["26.4"],
+];
+
+/* ---------------- render ---------------- */
+
+const STORE_KEY = "protection-tracker-done-v1";
+let done = {};
+try{ done = JSON.parse(localStorage.getItem(STORE_KEY) || "{}"); }catch(e){ done = {}; }
+
+function save(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(done)); }catch(e){}
+}
+
+function allItemIds(){
+  const ids = [];
+  DATA.forEach(p => {
+    p.tasks.forEach(t => t.subs.forEach(s => ids.push(s.id)));
+    ids.push("gate-" + p.gate.num);
+  });
+  return ids;
+}
+
+function reqChips(reqs){
+  return reqs.map(r => `<span class="tag" title="Requirement ${r}">R${r}</span>`).join("");
+}
+
+function renderLegend(){
+  document.getElementById("legend").innerHTML = `
+    <span><span class="dot confirmed"></span>Confirmed — Level 1, recorded data</span>
+    <span><span class="dot likely"></span>Likely — Level 2, rule-based</span>
+    <span><span class="dot possible"></span>Possible — Level 3, model-based</span>
+    <span><span class="dot gate-dot"></span>Review gate</span>
+  `;
+}
+
+function renderPhases(){
+  const root = document.getElementById("phases");
+  root.innerHTML = DATA.map(phase => {
+    const tasksHtml = phase.tasks.map(task => {
+      const subsHtml = task.subs.map(s => {
+        const checked = !!done[s.id];
+        return `
+          <div class="sub${checked?' done':''}" data-sub="${s.id}" data-optional="${!!s.optional}">
+            <div class="sub-id">${s.id}</div>
+            <input type="checkbox" aria-label="Mark ${s.id} done" ${checked?'checked':''} data-toggle="${s.id}" />
+            <div class="sub-body">
+              <div class="sub-title">${s.title}</div>
+              <p class="sub-detail">${s.detail}</p>
+              <div class="sub-tags">${reqChips(s.reqs)}${s.optional?'<span class="tag optional">optional</span>':''}</div>
+            </div>
+          </div>`;
+      }).join("");
+      return `
+        <details class="task" open data-task="${task.num}">
+          <summary>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+            <span class="task-id">${task.num}.</span>
+            <span class="task-title">${task.title}</span>
+            <div class="mini-meter"><i data-taskmeter="${task.num}" style="width:0%"></i></div>
+            <span class="task-frac" data-taskfrac="${task.num}">0/${task.subs.length}</span>
+          </summary>
+          <div class="subtasks">${subsHtml}</div>
+        </details>`;
+    }).join("");
+
+    const g = phase.gate;
+    const gateChecked = !!done["gate-" + g.num];
+    const gateHtml = `
+      <div class="gate${gateChecked?' done':''}" data-gate="${g.num}">
+        <input type="checkbox" aria-label="Mark review gate ${g.num} complete" ${gateChecked?'checked':''} data-toggle="gate-${g.num}" />
+        <div>
+          <div class="gate-label"><span class="gate-flag"></span>${g.title}</div>
+          <div class="gate-text">${g.text}</div>
+          <div class="gate-reqs">${reqChips(g.reqs)}</div>
+        </div>
+      </div>`;
+
+    return `
+      <section class="phase" id="phase-${phase.id}" data-phase="${phase.id}">
+        <div class="phase-head">
+          <div class="phase-num">${String(phase.id).padStart(2,'0')}</div>
+          <div>
+            <h2>${phase.name}</h2>
+            <p class="phase-goal">${phase.goal}</p>
+          </div>
+          <div class="phase-tally">
+            <div><strong data-phasefrac="${phase.id}">0</strong> / <span data-phasetotal="${phase.id}">0</span></div>
+            <div>sub-tasks done</div>
+          </div>
+        </div>
+        <div class="task-list">${tasksHtml}${gateHtml}</div>
+      </section>`;
+  }).join("");
+}
+
+function renderRail(){
+  const rail = document.getElementById("rail");
+  const links = DATA.map(p => `
+    <a href="#phase-${p.id}" data-railphase="${p.id}">
+      <span class="rail-num">${p.id}</span>
+      <span class="rail-name">${p.name}</span>
+      <span class="rail-frac" data-railfrac="${p.id}"></span>
+    </a>`).join("");
+  rail.innerHTML = `<p class="rail-label">Phases</p>${links}`;
+}
+
+function renderWaves(){
+  const root = document.getElementById("waves");
+  root.innerHTML = WAVES.map((ids, i) => `
+    <div class="wave">
+      <div class="wave-num">Wave ${i}</div>
+      <div class="wave-chips">${ids.map(id => `<span class="wave-chip" data-wavechip="${id}">${id}</span>`).join("")}</div>
+    </div>`).join("");
+}
+
+function recompute(){
+  let totalDone = 0, totalAll = 0;
+
+  DATA.forEach(phase => {
+    let phaseDone = 0, phaseTotal = 0;
+    phase.tasks.forEach(task => {
+      let taskDone = 0;
+      task.subs.forEach(s => { if(done[s.id]) taskDone++; });
+      phaseDone += taskDone; phaseTotal += task.subs.length;
+      const pct = task.subs.length ? Math.round(100*taskDone/task.subs.length) : 0;
+      const meter = document.querySelector(`[data-taskmeter="${task.num}"]`);
+      const frac = document.querySelector(`[data-taskfrac="${task.num}"]`);
+      if(meter) meter.style.width = pct + "%";
+      if(frac) frac.textContent = `${taskDone}/${task.subs.length}`;
+    });
+    totalDone += phaseDone; totalAll += phaseTotal;
+
+    const pf = document.querySelector(`[data-phasefrac="${phase.id}"]`);
+    const pt = document.querySelector(`[data-phasetotal="${phase.id}"]`);
+    if(pf) pf.textContent = phaseDone;
+    if(pt) pt.textContent = phaseTotal;
+
+    const rf = document.querySelector(`[data-railfrac="${phase.id}"]`);
+    if(rf) rf.textContent = `${phaseDone}/${phaseTotal}`;
+    const railLink = document.querySelector(`[data-railphase="${phase.id}"]`);
+    if(railLink) railLink.classList.toggle("done", phaseTotal>0 && phaseDone===phaseTotal);
+  });
+
+  const pct = totalAll ? Math.round(100*totalDone/totalAll) : 0;
+  document.getElementById("scoreDone").textContent = totalDone;
+  document.getElementById("scoreTotal").textContent = totalAll;
+  document.getElementById("scoreBar").style.width = pct + "%";
+  document.getElementById("scorePct").textContent = pct + "%";
+
+  document.querySelectorAll("[data-wavechip]").forEach(chip => {
+    const id = chip.getAttribute("data-wavechip");
+    chip.classList.toggle("done", !!done[id]);
+  });
+}
+
+function attachHandlers(){
+  document.body.addEventListener("change", e => {
+    const t = e.target;
+    if(t.matches("[data-toggle]")){
+      const id = t.getAttribute("data-toggle");
+      done[id] = t.checked;
+      save();
+      const subEl = document.querySelector(`.sub[data-sub="${id}"]`);
+      if(subEl) subEl.classList.toggle("done", t.checked);
+      const gateEl = document.querySelector(`.gate[data-gate="${id.replace('gate-','')}"]`);
+      if(gateEl) gateEl.classList.toggle("done", t.checked);
+      recompute();
+    }
+    if(t.id === "hideOptional"){
+      document.querySelectorAll(".sub[data-optional='true']").forEach(el => {
+        el.classList.toggle("hidden-filter", t.checked);
+      });
+    }
+  });
+
+  document.getElementById("searchBox").addEventListener("input", e => {
+    const q = e.target.value.trim().toLowerCase();
+    document.querySelectorAll(".sub").forEach(el => el.classList.remove("match"));
+    document.querySelectorAll(".task").forEach(el => el.open = true);
+    if(!q){ return; }
+    document.querySelectorAll(".sub").forEach(el => {
+      const text = el.textContent.toLowerCase();
+      const id = el.getAttribute("data-sub").toLowerCase();
+      if(text.includes(q) || id.includes(q) || ("r"+id).includes(q)){
+        el.classList.add("match");
+      }
+    });
+  });
+
+  // highlight active rail link on scroll
+  const sections = Array.from(document.querySelectorAll(".phase"));
+  const links = Array.from(document.querySelectorAll(".rail a"));
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        const id = entry.target.getAttribute("data-phase");
+        links.forEach(l => l.classList.toggle("active", l.getAttribute("data-railphase")===id));
+      }
+    });
+  }, { rootMargin: "-20% 0px -70% 0px" });
+  sections.forEach(s => obs.observe(s));
+}
+
+renderLegend();
+renderPhases();
+renderRail();
+renderWaves();
+attachHandlers();
+recompute();
+</script>

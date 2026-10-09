@@ -1,0 +1,38 @@
+# All tunable numeric thresholds for the Pass Protection Error Finder.
+# Code reads these via backend/pipeline/config.py rather than embedding
+# numeric literals (Requirement 1.5).
+
+field:
+  length_yd: 120.0          # full field incl. end zones, for x-normalization
+  width_yd: 53.3             # for y-normalization
+  frame_rate_hz: 10          # tracking sample rate; time_since_snap = frames / 10
+
+engagement:
+  distance_yd: 1.5           # blocker-rusher proximity to count as engaged
+  min_consecutive_frames: 3  # engagement must persist >= 3 frames
+
+rusher:
+  getoff_speed_yps: 2.0            # speed threshold defining the get-off moment
+  set_point_fallback_seconds: 0.5  # when no velocity stop within 1.0s of snap, use position at this time
+  set_point_search_seconds: 1.0    # window after the snap to search for the velocity-stop set point
+
+level2:
+  free_rusher_qb_yd: 3.0     # rusher-to-QB distance that triggers the free-rusher rule
+  stunt_window_s: 2.0        # window within which crossing paths count as a stunt
+  # Blocker-count rules count only pass blockers whose block type is NOT CH, SR, or NB
+  # (chip, screen-release, and no-block assignments should not inflate the protection count).
+  excluded_block_types: [CH, SR, NB]
+
+level3:
+  rep_threshold: 50           # below this rep count, shrink the player's history toward the position average
+  rep_residual_sigma: 2.0     # how far (in residual std-devs) worse than expected before a Possible flag fires
+  pressure_spike_delta: 0.25  # probability rise over the window that triggers attribution
+  pressure_spike_window: 5    # frames; a spike is a rise >= delta within this sliding window
+
+patterns:
+  interval_confidence: 0.90  # Wilson interval confidence level
+  distance_bands: [3, 7]     # short / medium / long distance-to-go cut points (yards to go)
+  min_opportunities: 10      # hide patterns with fewer opportunities than this
+
+cost:
+  nflverse_offline_ok: true  # produce flags with null epaCost when the EPA source is unavailable

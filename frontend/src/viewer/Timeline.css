@@ -1,0 +1,64 @@
+.timeline {
+  padding: 18px 4px 28px;
+}
+
+.timeline__track {
+  position: relative;
+  height: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.timeline__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--accent);
+  border-radius: 4px;
+  opacity: 0.4;
+}
+
+.timeline__playhead {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--surface);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 1px var(--border-strong);
+  pointer-events: none;
+}
+
+.timeline__event {
+  position: absolute;
+  top: -22px;
+  transform: translateX(-50%);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 9.5px;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+.timeline__event::after {
+  content: "";
+  position: absolute;
+  bottom: -14px;
+  left: 50%;
+  width: 1px;
+  height: 10px;
+  background: var(--border-strong);
+}
+
+.timeline__flag {
+  position: absolute;
+  bottom: -11px;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  transform: translateX(-50%) rotate(45deg);
+  cursor: pointer;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
+}
