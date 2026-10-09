@@ -1,0 +1,117 @@
+/* Pocket Coach page design (ported from the static Pocket Coach app).
+   Everything is scoped under .coach so the film viewer is untouched. */
+.coach {
+  --muted: var(--text-dim);
+  --soft: var(--surface-2);
+  --green: #1f7a3f;
+  font-family: "Fira Sans", system-ui, sans-serif;
+  font-size: 15px;
+}
+.coach h1, .coach h2, .coach h3 { font-family: var(--display); text-transform: uppercase; letter-spacing: .03em; color: var(--primary); }
+.coach h2 { font-size: 22px; letter-spacing: .04em; margin: 24px 0 10px; }
+.coach button, .coach select { font: inherit; color: inherit; cursor: pointer; }
+.coach select { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; min-height: 38px; }
+.coach .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 16px; }
+.coach .summary { color: var(--muted); margin: 0 0 16px; }
+.coach .summary b { color: var(--text); }
+.coach .def { font-size: 14px; color: var(--muted); margin: -8px 0 16px; }
+.coach .def b { color: var(--text); }
+.coach .hint { display: flex; align-items: center; gap: 10px; background: var(--primary-soft); border-left: 4px solid var(--accent); color: var(--primary); font-weight: 600; padding: 10px 14px; border-radius: 6px; margin: 0 0 14px; }
+.coach .hint svg { flex: none; }
+.coach img.logo { vertical-align: middle; object-fit: contain; }
+.coach .teamline { display: flex; align-items: center; gap: 12px; margin: 0 0 16px; }
+.coach .teamline h1 { font-size: 30px; margin: 0; line-height: 1; }
+.coach .teamline p { margin: 2px 0 0; color: var(--muted); }
+.coach .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.coach .empty { padding: 28px; color: var(--muted); text-align: center; }
+.coach .loading { padding: 40px 0; color: var(--muted); text-align: center; }
+
+/* Game plan */
+.coach .hero { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; margin-bottom: 24px; }
+.coach .hero .teamline { margin-bottom: 12px; }
+.coach .verdict { display: inline-block; font-family: var(--display); font-weight: 800; font-size: 17px; text-transform: uppercase; letter-spacing: .05em; padding: 3px 10px; border-radius: 6px; color: #fff; background: var(--muted); margin-top: 6px; }
+.coach .verdict.worse { background: var(--accent); }
+.coach .verdict.better { background: var(--green); }
+.coach .hero .big { font-size: 22px; line-height: 1.35; margin: 6px 0 16px; }
+.coach .bars { display: grid; gap: 8px; max-width: 560px; }
+.coach .bars div { display: grid; grid-template-columns: 64px 1fr 48px; align-items: center; gap: 10px; font-weight: 600; }
+.coach .bars i { height: 16px; border-radius: 8px; background: linear-gradient(90deg, #94a3b8 var(--w), var(--soft) var(--w)); }
+.coach .bars i.worse { background: linear-gradient(90deg, var(--accent) var(--w), var(--soft) var(--w)); }
+.coach .bars i.better { background: linear-gradient(90deg, var(--green) var(--w), var(--soft) var(--w)); }
+.coach .bars i.avg { background: linear-gradient(90deg, var(--primary) var(--w), var(--soft) var(--w)); }
+.coach .hero .how { color: var(--muted); margin: 16px 0 0; font-size: 14px; }
+.coach .problem { display: flex; gap: 16px; background: var(--surface); border: 1px solid var(--border); border-left: 5px solid var(--accent); border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; }
+.coach .problem .num { font-family: var(--display); font-size: 40px; font-weight: 800; color: var(--accent); line-height: 1; }
+.coach .problem h3 { font-size: 24px; margin: 0 0 4px; text-transform: none; letter-spacing: .01em; }
+.coach .problem .fact { margin: 0 0 8px; color: var(--muted); }
+.coach .problem .fact b { color: var(--text); }
+.coach .problem .todo { margin: 0 0 12px; }
+.coach .watch { display: inline-block; background: var(--accent); color: #fff; font-weight: 600; text-decoration: none; padding: 8px 16px; border-radius: 8px; }
+.coach .watch:hover { filter: brightness(1.1); }
+.coach .problem details { margin-top: 12px; font-size: 14px; color: var(--muted); }
+.coach .problem details p { margin: 6px 0; }
+.coach details summary { cursor: pointer; font-weight: 600; color: var(--primary); }
+.coach ul.good { background: var(--surface); border: 1px solid var(--border); border-left: 5px solid var(--green); border-radius: 10px; padding: 14px 18px 14px 36px; margin: 0 0 20px; }
+.coach .lessons { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; margin-top: 20px; }
+
+/* Alerts */
+.coach .levels { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 8px; }
+.coach .lvl { display: flex; gap: 12px; align-items: center; text-align: left; padding: 12px 14px; border: 2px solid var(--border); border-radius: 10px; background: var(--surface); }
+.coach .lvl b { display: block; font-family: var(--display); font-size: 18px; text-transform: uppercase; letter-spacing: .03em; }
+.coach .lvl small { color: var(--muted); }
+.coach .lvn { font-family: var(--display); font-weight: 800; font-size: 30px; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: #fff; flex: none; }
+.coach .lvl.Confirmed .lvn { background: var(--accent); }
+.coach .lvl.Likely .lvn { background: var(--gold); color: #3b2a00; }
+.coach .lvl.Possible .lvn { background: #2b6cb0; }
+.coach .lvl.on.Confirmed { border-color: var(--accent); background: #fff5f5; }
+.coach .lvl.on.Likely { border-color: var(--gold); background: #fffbeb; }
+.coach .lvl.on.Possible { border-color: #2b6cb0; background: #ebf4ff; }
+.coach .leveldesc { color: var(--muted); margin: 6px 0 14px; }
+.coach .list-row { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; padding: 14px 18px; border-bottom: 1px solid var(--border); border-left: 4px solid transparent; color: inherit; text-decoration: none; transition: background .15s; }
+.coach .list-row:last-child { border-bottom: 0; }
+.coach .list-row:hover { background: var(--soft); border-left-color: var(--accent); }
+.coach .list-row .who { font-weight: 600; }
+.coach .list-row .pos { color: var(--muted); }
+.coach .list-row .meta { color: var(--muted); font-size: 13px; grid-column: 1; }
+.coach .cost { text-align: right; min-width: 170px; grid-row: span 2; }
+.coach .cost b { display: block; font-size: 14px; }
+.coach .cost small { display: block; color: var(--muted); font-size: 12px; }
+.coach .sev { display: inline-block; font-family: var(--display); font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: .05em; padding: 1px 8px; border-radius: 4px; margin-bottom: 3px; }
+.coach .sev-hi { background: var(--accent); color: #fff; }
+.coach .sev-md { background: #f6ad55; color: #3b1d00; }
+.coach .sev-lo, .coach .sev-na { background: var(--soft); color: var(--muted); }
+.coach .sev-ok { background: #c6f6d5; color: #22543d; }
+
+/* Patterns + Weak links */
+.coach .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.coach .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+.coach .stat b { display: block; font-family: var(--display); font-size: 36px; font-weight: 800; color: var(--primary); font-variant-numeric: tabular-nums; }
+.coach .stat.hl { border-color: var(--accent); border-top: 4px solid var(--accent); background: #fff5f5; }
+.coach .stat.hl b { color: var(--accent); }
+.coach .stat span { color: var(--muted); font-size: 13px; }
+.coach table { width: 100%; border-collapse: collapse; }
+.coach th, .coach td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 14px; }
+.coach th { color: #fff; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; background: var(--primary); }
+.coach td.num { font-variant-numeric: tabular-nums; }
+.coach .ci { display: flex; align-items: center; gap: 8px; }
+.coach .ci .track { position: relative; width: 110px; height: 6px; background: var(--soft); border-radius: 3px; flex: none; }
+.coach .ci .track span { position: absolute; height: 100%; background: #f4a7a7; border-radius: 3px; }
+.coach .ci .track i { position: absolute; top: -3px; width: 2px; height: 12px; background: var(--text); }
+.coach a.play { color: var(--primary); font-weight: 500; text-decoration: none; margin-right: 8px; white-space: nowrap; }
+.coach a.play:hover { text-decoration: underline; }
+.coach .table-wrap { overflow-x: auto; }
+
+@media (prefers-color-scheme: dark) {
+  .coach .lvl.on.Confirmed, .coach .stat.hl { background: #3a1418; }
+  .coach .lvl.on.Likely { background: #3a2c12; }
+  .coach .lvl.on.Possible { background: #14294a; }
+  .coach th { background: #0a2a52; }
+}
+@media (max-width: 640px) {
+  .coach .hero { padding: 16px; }
+  .coach .hero .big { font-size: 19px; }
+  .coach .verdict { font-size: 14px; }
+  .coach .problem { gap: 12px; }
+  .coach .list-row { grid-template-columns: 1fr; }
+  .coach .cost { text-align: left; grid-row: auto; min-width: 0; }
+}

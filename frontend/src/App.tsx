@@ -1,12 +1,14 @@
 import { NavLink, Route, Routes } from "react-router-dom";
 import TeamSelector from "./components/TeamSelector";
 import LimitationsLink from "./components/LimitationsNote";
-import AlertsList from "./pages/AlertsList";
 import PlaysList from "./pages/PlaysList";
 import PlayViewerPage from "./pages/PlayViewerPage";
-import PatternsScreen from "./pages/PatternsScreen";
 import PlayerPage from "./pages/PlayerPage";
-import { useTeamScope } from "./useTeamScope";
+import GamePlan from "./coach/GamePlan";
+import CoachAlerts from "./coach/CoachAlerts";
+import CoachPatterns from "./coach/CoachPatterns";
+import WeakLinks from "./coach/WeakLinks";
+import { scopeQuery, useTeamScope } from "./useTeamScope";
 import "./App.css";
 
 export default function App() {
@@ -33,25 +35,22 @@ export default function App() {
         </div>
         <TeamSelector scope={scope} onChange={setScope} />
         <nav className="app-nav">
-          <NavLink to={{ pathname: "/", search: `?myTeam=${scope.myTeam ?? ""}&opponent=${scope.opponent ?? ""}&mode=${scope.mode}` }}>
-            Alerts
-          </NavLink>
-          <NavLink to={{ pathname: "/plays", search: `?myTeam=${scope.myTeam ?? ""}&opponent=${scope.opponent ?? ""}&mode=${scope.mode}` }}>
-            Film
-          </NavLink>
-          <NavLink to={{ pathname: "/patterns", search: `?myTeam=${scope.myTeam ?? ""}&opponent=${scope.opponent ?? ""}&mode=${scope.mode}` }}>
-            Patterns
-          </NavLink>
+          <NavLink end to={{ pathname: "/", search: `?${scopeQuery(scope)}` }}>Game plan</NavLink>
+          <NavLink to={{ pathname: "/alerts", search: `?${scopeQuery(scope)}` }}>Alerts</NavLink>
+          <NavLink to={{ pathname: "/patterns", search: `?${scopeQuery(scope)}` }}>Patterns</NavLink>
+          <NavLink to={{ pathname: "/weak-links", search: `?${scopeQuery(scope)}` }}>Weak links</NavLink>
         </nav>
         <LimitationsLink />
       </header>
 
       <main className="app-main">
         <Routes>
-          <Route path="/" element={<AlertsList scope={scope} />} />
+          <Route path="/" element={<GamePlan scope={scope} />} />
+          <Route path="/alerts" element={<CoachAlerts scope={scope} />} />
+          <Route path="/patterns" element={<CoachPatterns scope={scope} />} />
+          <Route path="/weak-links" element={<WeakLinks scope={scope} />} />
           <Route path="/plays" element={<PlaysList scope={scope} />} />
           <Route path="/plays/:gameId/:playId" element={<PlayViewerPage scope={scope} />} />
-          <Route path="/patterns" element={<PatternsScreen scope={scope} />} />
           <Route path="/players/:nflId" element={<PlayerPage scope={scope} />} />
         </Routes>
       </main>
