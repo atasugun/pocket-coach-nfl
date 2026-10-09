@@ -46,9 +46,9 @@
 | `first_contact` | 17 |
 | `fumble` | 4 |
 | `tackle` | 3 |
-| `huddle_break_offense` | 1 |
 | `dropped_pass` | 1 |
 | `out_of_bounds` | 1 |
+| `huddle_break_offense` | 1 |
 | `penalty_flag` | 1 |
 
 ## Snap / end-of-dropback resolution survey

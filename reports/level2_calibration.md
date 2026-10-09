@@ -5,7 +5,7 @@ Thresholds tuned on the training split (100 games); precision/recall below is co
 | Rule | Precision | Recall | TP | FP | FN |
 |---|---|---|---|---|---|
 | `free_rusher` | 12.5% | 1.2% | 8 | 56 | 664 |
-| `lost_escape_lane` | no answer key | no answer key | â€” | â€” | 15 flags, manual review |
+| `lost_escape_lane` | no answer key | no answer key | — | — | 15 flags, manual review |
 | `stunt_not_handled` | 73.9% | 9.7% | 65 | 23 | 607 |
 | `wasted_double_team` | 21.4% | 4.9% | 33 | 121 | 639 |
 
