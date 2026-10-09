@@ -9,7 +9,7 @@ export function useTeamScope(): [TeamScope, (next: Partial<TeamScope>) => void] 
 
   const scope: TeamScope = {
     myTeam: params.has("myTeam") ? params.get("myTeam") || null : "PHI",
-    opponent: params.has("opponent") ? params.get("opponent") || null : "JAX",
+    opponent: params.has("opponent") ? params.get("opponent") || null : "DAL",
     mode: (params.get("mode") as Mode) || "self",
   };
 
